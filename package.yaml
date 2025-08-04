@@ -8,6 +8,8 @@ copyright:           "2025 Evan Overman"
 
 extra-source-files:
 - README.md
+
+extra-doc-files:
 - CHANGELOG.md
 
 # Metadata used when publishing your package
@@ -46,4 +48,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - extended
-    - HUnit
+    - HUnit >= 1.6.1 && < 1.7

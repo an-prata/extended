@@ -19,6 +19,7 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
+extra-doc-files:
     CHANGELOG.md
 
 source-repository head
@@ -50,7 +51,7 @@ test-suite extended-test
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      HUnit
+      HUnit >=1.6.1 && <1.7
     , base >=4.7 && <5
     , extended
   default-language: Haskell2010

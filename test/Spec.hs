@@ -58,6 +58,4 @@ tests = TestList
     ]
 
 main :: IO ()
-main = do
-    _ <- runTestTT tests
-    pure ()
+main = runTestTTAndExit tests
