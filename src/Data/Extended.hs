@@ -146,7 +146,7 @@ instance Ord Extended where
     compare extended = compare (toRational extended) . toRational
 
 instance Eq Extended where
-    a == b = if classOf a == NaN || classOf b == NaN then False
+    a == b = if isNaN a || isNaN b then False
         else signExponent a == signExponent b && mantissa a == mantissa b
 
 instance Show Extended where
