@@ -11,13 +11,13 @@ extra-source-files:
 - CHANGELOG.md
 
 # Metadata used when publishing your package
-synopsis:            Support for an 80-bit extended float, as specified by the Apple Numerics Manual, Second Edition (1988). The spec can be found on page 18.
+synopsis:            Support for an 80-bit extended float.
 category:            data, library, numerical
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/an-prata/extended#readme>
+description:         Support for an 80-bit extended float, as specified by the Apple Numerics Manual, Second Edition (1988). The spec can be found on page 18.
 
 dependencies:
 - base >= 4.7 && < 5

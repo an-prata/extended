@@ -6,8 +6,8 @@ cabal-version: 2.2
 
 name:           extended
 version:        0.1.0.0
-synopsis:       Support for an 80-bit extended float, as specified by the Apple Numerics Manual, Second Edition (1988). The spec can be found on page 18.
-description:    Please see the README on GitHub at <https://github.com/an-prata/extended#readme>
+synopsis:       Support for an 80-bit extended float.
+description:    Support for an 80-bit extended float, as specified by the Apple Numerics Manual, Second Edition (1988). The spec can be found on page 18.
 category:       data, library, numerical
 homepage:       https://github.com/an-prata/extended#readme
 bug-reports:    https://github.com/an-prata/extended/issues
