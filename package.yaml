@@ -1,0 +1,49 @@
+name:                extended
+version:             0.1.0.0
+github:              "an-prata/extended"
+license:             BSD-3-Clause
+author:              "Evan Overman"
+maintainer:          "evanrileyoverman@gmail.com"
+copyright:           "2025 Evan Overman"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+# Metadata used when publishing your package
+synopsis:            Support for an 80-bit extended float, as specified by the Apple Numerics Manual, Second Edition (1988). The spec can be found on page 18.
+category:            data, library, numerical
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/an-prata/extended#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+tests:
+  extended-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - extended
+    - HUnit
