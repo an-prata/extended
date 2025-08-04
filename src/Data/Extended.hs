@@ -11,11 +11,15 @@ import Data.Int
 import Data.Word
 
 -- | An 80 bit extended float. If you are looking for greater precision then this probably won't
--- help - most operations defer to their implementation for `Double`, and convert to and from
--- `Double` to give values.
+-- help - many operations defer to their implementation for 'Double', and convert to and from
+-- 'Double' to give values.
+--
+-- Noteably the 'Eq' instance for 'Extended' /does not/ defer to 'Double''s instance of the same, so
+-- it /is/ possible to distinguish values from one another at higher precision, even if they cannot
+-- be operated on to that precision.
 data Extended = Extended
-    { signExponent :: Word16  -- ^ 16 most significant bits of the `Extended`.
-    , mantissa :: Word64  -- ^ 64 least significant bits of the `Extended`.
+    { signExponent :: Word16  -- ^ 16 most significant bits of the 'Extended'.
+    , mantissa :: Word64  -- ^ 64 least significant bits of the 'Extended'.
     }
 
 data ExtendedClass
@@ -26,7 +30,7 @@ data ExtendedClass
     | NaN
     deriving (Show, Eq)
 
--- | Build an `Extended` from a `Word16` holding the sign bit and exponents, and a `Word64` holding
+-- | Build an 'Extended' from a 'Word16' holding the sign bit and exponents, and a 'Word64' holding
 -- the mantissa.
 extendedFromParts :: Word16 -> Word64 -> Extended
 extendedFromParts signExponent mantissa = Extended
@@ -34,7 +38,7 @@ extendedFromParts signExponent mantissa = Extended
     , mantissa
     }
 
--- | Convert this `Extended` to a `Double`.
+-- | Convert this 'Extended' to a 'Double'.
 extendedToDouble :: Extended -> Double
 extendedToDouble extended = if signBit extended == 1
     then -1 * fraction * (2**exponentValue)
@@ -43,10 +47,11 @@ extendedToDouble extended = if signBit extended == 1
     fraction = fromIntegral (mantissa extended) / (2**63)
     exponentValue = fromIntegral (exponentBits extended) - 16383
 
+-- | Convert the given 'Double' to an 'Extended'.
 doubleToExtended :: Double -> Extended
 doubleToExtended double = uncurry encodeFloat (decodeFloat double)
 
--- | Class of the `Extended` value.
+-- | Class of the 'Extended' value.
 classOf :: Extended -> ExtendedClass
 classOf extended =
     if fromIntegral (exponentBits extended) == exponentMax + 1 then
@@ -117,17 +122,17 @@ instance Floating Extended where
     atanh = realToFrac . atanh . extendedToDouble
 
 instance RealFrac Extended where
-    properFraction extended = (wholePart, realToFrac fractionPart)
+    properFraction extended = (wholePart, doubleToExtended fractionPart)
       where
         (wholePart, fractionPart) = properFraction $ extendedToDouble extended
 
 instance Fractional Extended where
-    fromRational rational = uncurry encodeFloat $ decodeFloat (fromRational rational :: Double)
-    recip = realToFrac . recip . extendedToDouble
+    fromRational rational = doubleToExtended (fromRational rational :: Double)
+    recip = doubleToExtended . recip . extendedToDouble
 
 instance Num Extended where
-    (+) extended = fromRational . (+) (toRational extended) . toRational
-    (*) extended = fromRational . (*) (toRational extended) . toRational
+    (+) extended = doubleToExtended . (+) (extendedToDouble extended) . extendedToDouble
+    (*) extended = doubleToExtended . (*) (extendedToDouble extended) . extendedToDouble
     abs Extended { signExponent, mantissa } = Extended
         { signExponent = signExponent .&. 0x7FFF
         , mantissa
@@ -143,11 +148,15 @@ instance Num Extended where
         }
 
 instance Ord Extended where
-    compare extended = compare (toRational extended) . toRational
+    compare extended = compare (extendedToDouble extended) . extendedToDouble
 
 instance Eq Extended where
-    a == b = if isNaN a || isNaN b then False
-        else signExponent a == signExponent b && mantissa a == mantissa b
+    a == b = case (classOf a, classOf b) of
+        (Infinity, Infinity) -> signBit a == signBit b
+        (Zero, Zero) -> True
+        (NaN, _) -> False
+        (_, NaN) -> False
+        (_, _) -> signExponent a == signExponent b && mantissa a == mantissa b
 
 instance Show Extended where
     show = show . extendedToDouble
