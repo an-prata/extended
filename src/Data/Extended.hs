@@ -1,8 +1,37 @@
+{-# LANGUAGE Safe #-}
 {-# LANGUAGE NamedFieldPuns #-}
+
+-- |
+-- Module      :  Data.Extended
+-- Description :  Implements a type and functions for 80-bit extended floats.
+-- Copyright   :  (c) Evan Overman 2025
+-- License     :  BSD-3-Clause
+--
+-- Maintainer  :  evanrileyoverman@gmail.com
+-- Stability   :  stable
+-- Portability :  portable
+--
+-- This module provides support for an 80-bit extended float as specified by the /Apple Numerics/
+-- /Manual, Second Edition/ from 1988. The exact specification can be found on page 18 of the
+-- manual.
+--
+-- The primary intent of the module is to provide the ability to read and write an 'Extended' value.
+-- This module is not intended to provide a type that grants a greater floating point precision than
+-- 'Double', so while the type /does/ store a greater precision value, it does not necessarily
+-- perform operations to that precision.
+--
+-- As a consequence of this, the 'Extended' type will have a full 80-bit precision when read from on
+-- existing value of that precision, but once operated on, depending on the operation, may loose
+-- some of that precision and store a value which could just as easily be stored as a 'Double'
+-- instead.
 
 module Data.Extended
     ( Extended
+
+    -- * Conversions with 'Double's
     , extendedToDouble, doubleToExtended
+
+    -- * Conversions with binary parts
     , extendedFromParts, extendedToParts
     ) where
 
@@ -14,21 +43,13 @@ import Data.Word
 -- help - many operations defer to their implementation for 'Double', and convert to and from
 -- 'Double' to give values.
 --
--- Noteably the 'Eq' instance for 'Extended' /does not/ defer to 'Double''s instance of the same, so
--- it /is/ possible to distinguish values from one another at higher precision, even if they cannot
+-- Noteably the 'Eq' instance for 'Extended' /does not/ defer to the 'Double' instance of the same,
+-- so it /is/ possible to distinguish values from one another at higher precision, even if they cannot
 -- be operated on to that precision.
 data Extended = Extended
     { signExponent :: Word16  -- ^ 16 most significant bits of the 'Extended'.
     , mantissa :: Word64  -- ^ 64 least significant bits of the 'Extended'.
     }
-
-data ExtendedClass
-    = Normalized
-    | Denomalized
-    | Zero
-    | Infinity
-    | NaN
-    deriving (Show, Eq)
 
 -- | Build an 'Extended' from a 'Word16' holding the sign bit and exponent, and a 'Word64' holding
 -- the mantissa.
@@ -43,6 +64,7 @@ data ExtendedClass
 -- 'Extended'.
 extendedFromParts :: Word16 -> Word64 -> Extended
 extendedFromParts = Extended
+
 -- | Breaks the 'Extended' down into the first 16 bits, which hold the sign bit and exponent, and
 -- the remaining 64 bits which follow and contain the mantissa, which is made up of a single integer
 -- bit in the most significant position, followed by a fraction part in the last 63 bits.
@@ -72,6 +94,9 @@ extendedToDouble extended = if signBit extended == 1
 -- | Convert the given 'Double' to an 'Extended'.
 doubleToExtended :: Double -> Extended
 doubleToExtended double = uncurry encodeFloat (decodeFloat double)
+
+data ExtendedClass = Normalized | Denomalized | Zero | Infinity | NaN
+    deriving (Show, Eq)
 
 -- | Class of the 'Extended' value.
 classOf :: Extended -> ExtendedClass
@@ -182,4 +207,3 @@ instance Eq Extended where
 
 instance Show Extended where
     show = show . extendedToDouble
-    
