@@ -5,7 +5,7 @@ cabal-version: 2.2
 -- see: https://github.com/sol/hpack
 
 name:           extended
-version:        0.1.0.0
+version:        0.2.0.0
 synopsis:       Support for an 80-bit extended float.
 description:    Support for an 80-bit extended float, as specified by the Apple Numerics Manual, Second Edition (1988). The spec can be found on page 18.
 category:       data, library, numerical

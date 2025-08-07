@@ -1,9 +1,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Data.Extended
-    ( Extended ( signExponent, mantissa )
-    , extendedFromParts
+    ( Extended
     , extendedToDouble, doubleToExtended
+    , extendedFromParts, extendedToParts
     ) where
 
 import Data.Bits
@@ -30,13 +30,35 @@ data ExtendedClass
     | NaN
     deriving (Show, Eq)
 
--- | Build an 'Extended' from a 'Word16' holding the sign bit and exponents, and a 'Word64' holding
+-- | Build an 'Extended' from a 'Word16' holding the sign bit and exponent, and a 'Word64' holding
 -- the mantissa.
+-- 
+-- This function is to 'extendedToParts' as 'encodeFloat' is to 'decodeFloat':
+-- 
+-- @
+-- uncurry extendedFromParts (extendedToParts e) == e
+-- @
+--
+-- However, unlike 'encodeFloat', this function takes the actual binary representation of the
+-- 'Extended'.
 extendedFromParts :: Word16 -> Word64 -> Extended
-extendedFromParts signExponent mantissa = Extended
-    { signExponent
-    , mantissa
-    }
+extendedFromParts = Extended
+-- | Breaks the 'Extended' down into the first 16 bits, which hold the sign bit and exponent, and
+-- the remaining 64 bits which follow and contain the mantissa, which is made up of a single integer
+-- bit in the most significant position, followed by a fraction part in the last 63 bits.
+--
+-- This function is to 'extendedFromParts' as 'decodeFloat' is to 'encodeFloat':
+-- 
+-- @
+-- uncurry extendedFromParts (extendedToParts e) == e
+-- @
+--
+-- However, unlike 'decodeFloat', this function gives the actuall binary representation of the
+-- 'Extended', where the sign is packaged with the exponent and not the mantissa, meaning that the
+-- value of the 'Extended' cannot be calculated using this function without further extracting
+-- binary parts.
+extendedToParts :: Extended -> (Word16, Word64)
+extendedToParts Extended { signExponent, mantissa } = (signExponent, mantissa)
 
 -- | Convert this 'Extended' to a 'Double'.
 extendedToDouble :: Extended -> Double
