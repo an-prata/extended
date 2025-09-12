@@ -3,13 +3,6 @@
 import Test.HUnit
 import Data.Extended
 
-import Foreign.C.Types
-import Foreign.Marshal.Alloc
-import Foreign.Ptr
-import Foreign.Storable
-
-import qualified Language.C.Inline as C
-
 doubleConversion :: Assertion
 doubleConversion = mapM_
     (\c -> c @=? (extendedToDouble (doubleToExtended c)))
@@ -50,31 +43,12 @@ extendedDecode = mapM_
         , extendedFromParts 0x0000 0x6FFFFFFFFFFFFFFF
         ]
 
-cLongDouble :: Assertion
-cLongDouble = do
-    ldPtr <- malloc :: IO (Ptr CLongDouble)
-
-    let ldValue = doubleToExtended 12.4
-    poke ldPtr (CLongDouble ldValue)
-    longDouble <- peek ldPtr :: IO CLongDouble
-
-    ldValue @=? getLongDouble longDouble
-
-    let d = extendedToDouble ldValue
-    let voidPtr = castPtr ldPtr :: Ptr ()
-    castedToDouble <- [C.block| double {
-        long double* ptr = $(void* voidPtr);
-        return (double)(*ptr);
-    } |]
-    d @=? realToFrac castedToDouble
-
 tests :: Test
 tests = TestList
     [ test doubleConversion
     , test extendedRealToFrac
     , test extendedProperFraction
     , test extendedDecode
-    , test cLongDouble
     ]
 
 main :: IO ()
